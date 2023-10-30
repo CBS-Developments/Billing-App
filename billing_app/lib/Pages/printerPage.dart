@@ -85,8 +85,28 @@ class _PrinterPageState extends State<PrinterPage> {
     return formattedDate;
   }
 
+  String generateReceiptString(List<Item> selectedItems, String subTotal) {
+    StringBuffer receiptBuffer = StringBuffer();
+    receiptBuffer.writeln("Receipt Preview");
+    receiptBuffer.writeln("----------------------------");
+
+    for (Item item in selectedItems) {
+      receiptBuffer.writeln(item.name);
+      receiptBuffer.writeln("Price: ${item.price} | Quantity: ${item.quantity} | Total: ${item.total}");
+      receiptBuffer.writeln("----------------------------");
+    }
+
+    receiptBuffer.writeln("Sub Total: $subTotal");
+    receiptBuffer.writeln("----------------------------");
+
+    return receiptBuffer.toString();
+  }
+
+
+
   @override
   Widget build(BuildContext context) {
+    String receiptString = generateReceiptString(widget.selectedItems, widget.subTotal);
     return Scaffold(
       appBar: AppBar(
         title: const Text('Connect Bluetooth Printer'),
@@ -194,6 +214,7 @@ class _PrinterPageState extends State<PrinterPage> {
                           child: Text('Print Receipt'),
                           onPressed:  _connected?() async {
                             print(generatedReceiptId());
+                            print(receiptString);
                             Map<String, dynamic> config = Map();
 
                             List<LineText> list = [];

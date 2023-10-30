@@ -104,7 +104,7 @@ class _HomePageState extends State<HomePage> {
   void printSelectedItems(List<Item> selectedItems) {
     print('Selected Items:');
     for (var item in selectedItems) {
-      print('Name: ${item.name}, Price: ${item.price.toStringAsFixed(2)}, Quantity: ${item.quantity}, Total: \$${item.total.toStringAsFixed(2)}');
+      print('Name: ${item.name}, Price: ${item.price.toStringAsFixed(2)}, Quantity: ${item.quantity}, Total: ${item.total.toStringAsFixed(2)}');
     }
   }
 }
