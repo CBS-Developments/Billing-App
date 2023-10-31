@@ -30,20 +30,22 @@ class _HomePageState extends State<HomePage> {
 
 
   List<Item> items = [
-    Item("Sudu Kakulu", 200.00, 0, 0.00),
-    Item("Supuri Nadu", 170.00, 0, 0.00),
-    Item("Rathu Kakulu", 230.00, 0, 0.00),
-    Item("Kiiri Samba", 270.00, 0, 0.00),
-    Item("Basmathi", 400.00, 0, 0.00),
-    Item("Rathu Nadu", 190.00, 0, 0.00),
-    Item("Kakulu Samba", 220.00, 0, 0.00),
+    Item("#001", "Samba 25Kg", 7250.00, 0, 0.00),
+    Item("#002", "Naadu 25Kg", 4875.00, 0, 0.00),
+    Item("#003", "Sudu Kakulu 25Kg", 5250.00, 0, 0.00),
+    Item("#004", "Keeri Samba 25Kg", 8500.00, 0, 0.00),
+    Item("#005", "Rosa Kakulu 25Kg", 5375.00, 0, 0.00),
+    Item("#006", "Rathu Nadu 25Kg", 4250.00, 0, 0.00),
+    Item("#007", "Rathu Samba 25Kg", 5500.00, 0, 0.00),
   ];
+
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Mega Mart'),
+        automaticallyImplyLeading: false,
+        title: Center(child: Text('Gunasewana Mills')),
       ),
       body: ListView.builder(
         itemCount: items.length,
@@ -188,11 +190,12 @@ class _ItemTileState extends State<ItemTile> {
 }
 
 class Item {
+  final String itemCode; // Add item code property
   final String name;
   final double price;
   int quantity;
   double total;
   bool isSelected;
 
-  Item(this.name, this.price, this.quantity, this.total, {this.isSelected = false});
+  Item(this.itemCode, this.name, this.price, this.quantity, this.total, {this.isSelected = false});
 }

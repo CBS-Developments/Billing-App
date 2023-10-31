@@ -9,8 +9,6 @@ import 'package:bluetooth_print/bluetooth_print_model.dart';
 import 'homePage.dart';
 
 
-
-
 class PrinterPage extends StatefulWidget {
   final List<Item> selectedItems;
   final String subTotal;
@@ -109,6 +107,7 @@ class _PrinterPageState extends State<PrinterPage> {
     String receiptString = generateReceiptString(widget.selectedItems, widget.subTotal);
     return Scaffold(
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         title: const Text('Connect Bluetooth Printer'),
       ),
       body: RefreshIndicator(
@@ -254,7 +253,7 @@ class _PrinterPageState extends State<PrinterPage> {
                                   linefeed: 1, ));
                               list.add(LineText(
                                   type: LineText.TYPE_TEXT,
-                                  content: item.price.toString(),
+                                  content: item.price.toStringAsFixed(2),
                                   weight: 1,
                                   align: LineText.ALIGN_LEFT,
                                   x: 5,
@@ -270,7 +269,7 @@ class _PrinterPageState extends State<PrinterPage> {
                                   linefeed: 0));
                               list.add(LineText(
                                   type: LineText.TYPE_TEXT,
-                                  content: item.total.toString(),
+                                  content: item.total.toStringAsFixed(2),
                                   weight: 1,
                                   align: LineText.ALIGN_LEFT,
                                   x: 260,
