@@ -69,6 +69,107 @@ class _PrinterPageState extends State<PrinterPage> {
     }
   }
 
+  Future<void> showPrintedSuccessfullyDialog(BuildContext context) async {
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false, // Dialog cannot be dismissed by tapping outside
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Printed Successfully'),
+          content: SingleChildScrollView(
+            child: ListBody(
+              children: <Widget>[
+                Text('The receipt was printed successfully.'),
+              ],
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: Text('OK'),
+              onPressed: () {
+                Navigator.of(context).pop(); // Close the dialog
+              },
+            ),
+            TextButton(
+              child: Text('Print Seller Copy'),
+              onPressed: _connected?() async {
+                print(generatedReceiptId());
+                Map<String, dynamic> config = Map();
+
+                List<LineText> list = [];
+
+
+                list.add(LineText(type: LineText.TYPE_TEXT, content: "Seller Copy", weight: 1, align: LineText.ALIGN_CENTER, linefeed: 1));
+                list.add(LineText(type: LineText.TYPE_TEXT, content: '--------------------------------', weight: 1, align: LineText.ALIGN_CENTER, linefeed: 1));
+                list.add(LineText(type: LineText.TYPE_TEXT, content: 'Receipt No:', weight: 1, align: LineText.ALIGN_LEFT, x: 0, relativeX: 0, linefeed: 0));
+                list.add(LineText(type: LineText.TYPE_TEXT, content: generatedReceiptId(), weight: 1, align: LineText.ALIGN_LEFT, x: 140, relativeX: 0, linefeed: 1));
+                list.add(LineText(type: LineText.TYPE_TEXT, content: 'Cashier:', weight: 1, align: LineText.ALIGN_LEFT, x: 0, relativeX: 0, linefeed: 0));
+                list.add(LineText(type: LineText.TYPE_TEXT, content: "DinethriG", weight: 1, align: LineText.ALIGN_LEFT, x: 110, relativeX: 0, linefeed: 1));
+                list.add(LineText(type: LineText.TYPE_TEXT, content: getCurrentDateTime(), weight: 1, align: LineText.ALIGN_LEFT, x: 0, relativeX: 0, linefeed: 1));
+                list.add(LineText(type: LineText.TYPE_TEXT, content: 'Payment Type:', weight: 1, align: LineText.ALIGN_LEFT, x: 0, relativeX: 0, linefeed: 0));
+                list.add(LineText(type: LineText.TYPE_TEXT, content: "Cash", weight: 1, align: LineText.ALIGN_LEFT, x: 165, relativeX: 0, linefeed: 1));
+                list.add(LineText(type: LineText.TYPE_TEXT, content: '--------------------------------', weight: 1, align: LineText.ALIGN_CENTER,linefeed: 1));
+
+                list.add(LineText(type: LineText.TYPE_TEXT, content: 'Item Price', weight: 1, align: LineText.ALIGN_LEFT, x: 0, relativeX: 0, linefeed: 0));
+                list.add(LineText(type: LineText.TYPE_TEXT, content: 'Qty', weight: 1, align: LineText.ALIGN_LEFT, x: 155, relativeX: 0, linefeed: 0));
+                list.add(LineText(type: LineText.TYPE_TEXT, content: "Total(Rs)", weight: 1, align: LineText.ALIGN_LEFT, x: 255, relativeX: 0, linefeed: 1));
+                list.add(LineText(linefeed: 1));
+
+                // Add items to the receipt
+                for (Item item in widget.selectedItems) {
+                  list.add(LineText(
+                    type: LineText.TYPE_TEXT,
+                    content: ' ${item.name}',
+                    weight: 1,
+                    align: LineText.ALIGN_LEFT,
+                    x: 0,
+                    relativeX: 0,
+                    linefeed: 1, ));
+                  list.add(LineText(
+                      type: LineText.TYPE_TEXT,
+                      content: item.price.toStringAsFixed(2),
+                      weight: 1,
+                      align: LineText.ALIGN_LEFT,
+                      x: 5,
+                      relativeX: 0,
+                      linefeed: 0));
+                  list.add(LineText(
+                      type: LineText.TYPE_TEXT,
+                      content: item.quantity.toString(),
+                      weight: 1,
+                      align: LineText.ALIGN_LEFT,
+                      x: 160,
+                      relativeX: 0,
+                      linefeed: 0));
+                  list.add(LineText(
+                      type: LineText.TYPE_TEXT,
+                      content: item.total.toStringAsFixed(2),
+                      weight: 1,
+                      align: LineText.ALIGN_LEFT,
+                      x: 260,
+                      relativeX: 0,
+                      linefeed: 1));
+                }
+
+                list.add(LineText(type: LineText.TYPE_TEXT, content: '--------------------------------', weight: 1, align: LineText.ALIGN_CENTER,linefeed: 1));
+                list.add(LineText(type: LineText.TYPE_TEXT, content: 'Sub Total', weight: 1, align: LineText.ALIGN_LEFT, x: 0, relativeX: 0, linefeed: 0));
+                list.add(LineText(type: LineText.TYPE_TEXT, content: widget.subTotal, weight: 1, align: LineText.ALIGN_LEFT, x: 255, relativeX: 0, linefeed: 1));
+                list.add(LineText(type: LineText.TYPE_TEXT, content: '--------------------------------', weight: 1, align: LineText.ALIGN_CENTER,linefeed: 1));
+                list.add(LineText(type: LineText.TYPE_TEXT, content: 'Thank You!!', weight: 1, align: LineText.ALIGN_CENTER, linefeed: 1));
+                // list.add(LineText(type: LineText.TYPE_TEXT, content: 'Develop by: Digital Business Lab', weight: 1, align: LineText.ALIGN_CENTER,fontZoom: 1, linefeed: 1));
+                list.add(LineText(linefeed: 1));
+
+                await bluetoothPrint.printReceipt(config, list);
+                Navigator.of(context).pop();
+              }:null,
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+
   String generatedReceiptId() {
     final random = Random();
     int min = 0; // Smallest 5-digit number
@@ -282,9 +383,12 @@ class _PrinterPageState extends State<PrinterPage> {
                             list.add(LineText(type: LineText.TYPE_TEXT, content: widget.subTotal, weight: 1, align: LineText.ALIGN_LEFT, x: 255, relativeX: 0, linefeed: 1));
                             list.add(LineText(type: LineText.TYPE_TEXT, content: '--------------------------------', weight: 1, align: LineText.ALIGN_CENTER,linefeed: 1));
                             list.add(LineText(type: LineText.TYPE_TEXT, content: 'Thank You!!', weight: 1, align: LineText.ALIGN_CENTER, linefeed: 1));
+                            // list.add(LineText(type: LineText.TYPE_TEXT, content: 'Develop by: Digital Business Lab', weight: 1, align: LineText.ALIGN_CENTER,fontZoom: 1, linefeed: 1));
                             list.add(LineText(linefeed: 1));
 
                             await bluetoothPrint.printReceipt(config, list);
+
+                            showPrintedSuccessfullyDialog(context);
                           }:null,
                         ),
 
