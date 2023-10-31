@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'dart:async';
 
@@ -5,7 +7,7 @@ import 'dart:math';
 import 'package:intl/intl.dart';
 import 'package:bluetooth_print/bluetooth_print.dart';
 import 'package:bluetooth_print/bluetooth_print_model.dart';
-
+import 'package:http/http.dart' as http;
 import 'homePage.dart';
 
 
@@ -67,6 +69,111 @@ class _PrinterPageState extends State<PrinterPage> {
         _connected=true;
       });
     }
+  }
+
+
+  String generatedReceiptId() {
+    final random = Random();
+    int min = 0; // Smallest 5-digit number
+    int max = 99999; // Largest 5-digit number
+    int randomNumber = min + random.nextInt(max - min + 1);
+    return randomNumber.toString().padLeft(5, '0');
+  }
+
+  String getCurrentDateTime() {
+    final now = DateTime.now();
+    final formattedDate = DateFormat('yyyy-MM-dd HH:mm:ss').format(now);
+    return formattedDate;
+  }
+
+  String getCurrentDate() {
+    final now = DateTime.now();
+    final formattedDate = DateFormat('yyyy-MM-dd').format(now);
+    return formattedDate;
+  }
+
+  String getCurrentMonth() {
+    final now = DateTime.now();
+    final formattedDate = DateFormat('yyyy-MM').format(now);
+    return formattedDate;
+  }
+
+  String getCurrentTime() {
+    final now = DateTime.now();
+    final formattedDate = DateFormat('HH:mm:ss').format(now);
+    return formattedDate;
+  }
+
+  String generateReceiptString(List<Item> selectedItems, String subTotal) {
+    StringBuffer receiptBuffer = StringBuffer();
+    receiptBuffer.writeln("Receipt Details");
+    receiptBuffer.writeln("----------------------------");
+
+    for (Item item in selectedItems) {
+      receiptBuffer.writeln(item.name);
+      receiptBuffer.writeln("Price: ${item.price} | Quantity: ${item.quantity} | Total: ${item.total}");
+      receiptBuffer.writeln("----------------------------");
+    }
+
+    receiptBuffer.writeln("Sub Total: $subTotal");
+    receiptBuffer.writeln("----------------------------");
+
+    return receiptBuffer.toString();
+  }
+
+
+  Future<void> addSale(BuildContext context,{
+    required billNo,
+    required cashier,
+    required billDetails,
+    required subTotal,
+  }) async {
+
+    var url = "http://dev.workspace.cbs.lk/addSale.php";
+
+    var data = {
+      "bill_no": billNo,
+      "date_time": getCurrentTime(),
+      "bill_date": getCurrentDate(),
+      "bill_month": getCurrentMonth(),
+      "cashier_": cashier,
+      "bill_details": billDetails,
+      "sub_total": subTotal,
+    };
+
+    http.Response res = await http.post(
+      Uri.parse(url),
+      body: data,
+      headers: {
+        "Accept": "application/json",
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
+      encoding: Encoding.getByName("utf-8"),
+    );
+
+    if (res.statusCode.toString() == "200") {
+      if (jsonDecode(res.body) == "true") {
+        if (!mounted) return;
+        snackBar(context, "Sale added successfully", Colors.green);
+
+
+      } else {
+        if (!mounted) return;
+        snackBar(context, "Error", Colors.red);
+      }
+    } else {
+      if (!mounted) return;
+      snackBar(context, "Error", Colors.redAccent);
+    }
+  }
+
+  Future<void> snackBar( BuildContext context, String message, Color color) async {
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      content: Text(
+        message,
+        style: TextStyle(color: color, fontSize: 17.0),
+      ),
+    ));
   }
 
   Future<void> showPrintedSuccessfullyDialog(BuildContext context) async {
@@ -167,38 +274,6 @@ class _PrinterPageState extends State<PrinterPage> {
         );
       },
     );
-  }
-
-
-  String generatedReceiptId() {
-    final random = Random();
-    int min = 0; // Smallest 5-digit number
-    int max = 99999; // Largest 5-digit number
-    int randomNumber = min + random.nextInt(max - min + 1);
-    return randomNumber.toString().padLeft(5, '0');
-  }
-
-  String getCurrentDateTime() {
-    final now = DateTime.now();
-    final formattedDate = DateFormat('yyyy-MM-dd HH:mm:ss').format(now);
-    return formattedDate;
-  }
-
-  String generateReceiptString(List<Item> selectedItems, String subTotal) {
-    StringBuffer receiptBuffer = StringBuffer();
-    receiptBuffer.writeln("Receipt Preview");
-    receiptBuffer.writeln("----------------------------");
-
-    for (Item item in selectedItems) {
-      receiptBuffer.writeln(item.name);
-      receiptBuffer.writeln("Price: ${item.price} | Quantity: ${item.quantity} | Total: ${item.total}");
-      receiptBuffer.writeln("----------------------------");
-    }
-
-    receiptBuffer.writeln("Sub Total: $subTotal");
-    receiptBuffer.writeln("----------------------------");
-
-    return receiptBuffer.toString();
   }
 
 
@@ -389,6 +464,7 @@ class _PrinterPageState extends State<PrinterPage> {
                             await bluetoothPrint.printReceipt(config, list);
 
                             showPrintedSuccessfullyDialog(context);
+                            addSale(context, billNo: generatedReceiptId(), cashier: "DinethriG", billDetails: receiptString, subTotal: widget.subTotal);
                           }:null,
                         ),
 
