@@ -71,84 +71,107 @@ class _SalesPageState extends State<SalesPage> {
         if (snapshot.hasData) {
           List<Bill>? data = snapshot.data;
           data = filterSalesData(data, tabName); // Filter data based on tab
-          return ListView.builder(
-            itemCount: data!.length,
-            itemBuilder: (context, index) {
-              return SingleChildScrollView(
-                child: Column(
-                  children: [
-                    ListTile(
-                      title: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+
+          // Calculate the total sales for today and this month
+          double totalSales = 0;
+          if (tabName == "Today" || tabName == "This Month") {
+            for (var bill in data) {
+              totalSales += double.parse(bill.subTotal);
+            }
+          }
+
+          return Column(
+            children: [
+              Expanded(
+                child: ListView.builder(
+                  itemCount: data!.length,
+                  itemBuilder: (context, index) {
+                    return SingleChildScrollView(
+                      child: Column(
                         children: [
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
-                                children: [
-                                  Text(
-                                    'Bill No: ',
-                                    style: TextStyle(
-                                        fontSize: 15, color: Colors.black),
-                                  ),
-                                  SelectableText(
-                                    data![index].billNo,
-                                    style: TextStyle(
-                                        fontSize: 15, color: Colors.blueAccent),
-                                  ),
-                                ],
-                              ),
-                              Row(
-                                children: [
-                                  Text(
-                                   '${data![index].customer} | ${data![index].billDate} ${data![index].dateTime} ',
-                                    style: TextStyle(
-                                        fontSize: 13, color: Colors.black),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
-                                mainAxisSize: MainAxisSize.min, // This ensures the Container only takes the width of its child
-                                children: [
-                                  Container(
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(20),
-                                      color: Colors.white,
-                                      border: Border.all(
-                                        color: Colors.grey.shade500,
-                                        width: 1.0,
-                                      ),
-                                    ),
-                                    child: Center(
-                                      child: Padding(
-                                        padding: const EdgeInsets.all(5.0),
-                                        child: Row(
-                                          children: [
-                                            Text(' Rs. ${data![index].subTotal} ', style: TextStyle(fontSize: 15))
-                                          ],
+                          ListTile(
+                            title: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Row(
+                                      children: [
+                                        Text(
+                                          'Bill No: ',
+                                          style: TextStyle(
+                                              fontSize: 15, color: Colors.black),
                                         ),
-                                      ),
+                                        SelectableText(
+                                          data![index].billNo,
+                                          style: TextStyle(
+                                              fontSize: 15, color: Colors.blueAccent),
+                                        ),
+                                      ],
                                     ),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
+                                    Row(
+                                      children: [
+                                        Text(
+                                          '${data![index].customer} | ${data![index].billDate} ${data![index].dateTime} ',
+                                          style: TextStyle(
+                                              fontSize: 13, color: Colors.black),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
 
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Row(
+                                      mainAxisSize: MainAxisSize.min, // This ensures the Container only takes the width of its child
+                                      children: [
+                                        Container(
+                                          decoration: BoxDecoration(
+                                            borderRadius: BorderRadius.circular(20),
+                                            color: Colors.white,
+                                            border: Border.all(
+                                              color: Colors.grey.shade500,
+                                              width: 1.0,
+                                            ),
+                                          ),
+                                          child: Center(
+                                            child: Padding(
+                                              padding: const EdgeInsets.all(5.0),
+                                              child: Row(
+                                                children: [
+                                                  Text(' Rs. ${data![index].subTotal} ', style: TextStyle(fontSize: 15))
+                                                ],
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
+                          Divider()
                         ],
                       ),
-                    ),
-                    Divider()
-                  ],
+                    );
+                  },
                 ),
-              );
-            },
+              ),
+              // Section to display the total sales
+              if (tabName == "Today" || tabName == "This Month")
+                Container(
+                  padding: EdgeInsets.all(16),
+                  child: Text(
+                    "Total Sales for $tabName: Rs. ${totalSales.toStringAsFixed(2)}",
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  ),
+                ),
+            ],
           );
         } else if (snapshot.hasError) {
           return const Text("-Empty-");
@@ -157,6 +180,8 @@ class _SalesPageState extends State<SalesPage> {
       },
     );
   }
+
+
 
   // A helper method to filter data based on the selected tab
   List<Bill> filterSalesData(List<Bill>? data, String tabName) {
