@@ -14,7 +14,8 @@ import 'homePage.dart';
 class PrinterPage extends StatefulWidget {
   final List<Item> selectedItems;
   final String subTotal;
-  PrinterPage({super.key, required this.selectedItems, required this.subTotal, });
+  final String customerName;
+  PrinterPage({super.key, required this.selectedItems, required this.subTotal, required this.customerName, });
 
   @override
   State<PrinterPage> createState() => _PrinterPageState();
@@ -155,7 +156,7 @@ class _PrinterPageState extends State<PrinterPage> {
     if (res.statusCode.toString() == "200") {
       if (jsonDecode(res.body) == "true") {
         if (!mounted) return;
-        snackBar(context, "Sale added successfully", Colors.green);
+        showPrintedSuccessfullyDialog(context);
 
 
       } else {
@@ -184,10 +185,10 @@ class _PrinterPageState extends State<PrinterPage> {
       builder: (BuildContext context) {
         return AlertDialog(
           title: Text('Printed Successfully'),
-          content: SingleChildScrollView(
+          content: const SingleChildScrollView(
             child: ListBody(
               children: <Widget>[
-                Text('The receipt was printed successfully.'),
+                Text('Sale recoded Successfully!!'),
               ],
             ),
           ),
@@ -195,7 +196,12 @@ class _PrinterPageState extends State<PrinterPage> {
             TextButton(
               child: Text('OK'),
               onPressed: () {
-                Navigator.of(context).pop(); // Close the dialog
+                Navigator.of(context).pop();
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => HomePage()),
+                );
+                // Close the dialog
               },
             ),
             TextButton(
@@ -211,6 +217,8 @@ class _PrinterPageState extends State<PrinterPage> {
                 list.add(LineText(type: LineText.TYPE_TEXT, content: '--------------------------------', weight: 1, align: LineText.ALIGN_CENTER, linefeed: 1));
                 list.add(LineText(type: LineText.TYPE_TEXT, content: 'Receipt No:', weight: 1, align: LineText.ALIGN_LEFT, x: 0, relativeX: 0, linefeed: 0));
                 list.add(LineText(type: LineText.TYPE_TEXT, content: generatedReceiptId(), weight: 1, align: LineText.ALIGN_LEFT, x: 140, relativeX: 0, linefeed: 1));
+                list.add(LineText(type: LineText.TYPE_TEXT, content: 'Customer:', weight: 1, align: LineText.ALIGN_LEFT, x: 0, relativeX: 0, linefeed: 0));
+                list.add(LineText(type: LineText.TYPE_TEXT, content: widget.customerName, weight: 1, align: LineText.ALIGN_LEFT, x: 130, relativeX: 0, linefeed: 1));
                 list.add(LineText(type: LineText.TYPE_TEXT, content: 'Cashier:', weight: 1, align: LineText.ALIGN_LEFT, x: 0, relativeX: 0, linefeed: 0));
                 list.add(LineText(type: LineText.TYPE_TEXT, content: "DinethriG", weight: 1, align: LineText.ALIGN_LEFT, x: 110, relativeX: 0, linefeed: 1));
                 list.add(LineText(type: LineText.TYPE_TEXT, content: getCurrentDateTime(), weight: 1, align: LineText.ALIGN_LEFT, x: 0, relativeX: 0, linefeed: 1));
@@ -406,6 +414,8 @@ class _PrinterPageState extends State<PrinterPage> {
                             list.add(LineText(type: LineText.TYPE_TEXT, content: '--------------------------------', weight: 1, align: LineText.ALIGN_CENTER, linefeed: 1));
                             list.add(LineText(type: LineText.TYPE_TEXT, content: 'Receipt No:', weight: 1, align: LineText.ALIGN_LEFT, x: 0, relativeX: 0, linefeed: 0));
                             list.add(LineText(type: LineText.TYPE_TEXT, content: generatedReceiptId(), weight: 1, align: LineText.ALIGN_LEFT, x: 140, relativeX: 0, linefeed: 1));
+                            list.add(LineText(type: LineText.TYPE_TEXT, content: 'Customer:', weight: 1, align: LineText.ALIGN_LEFT, x: 0, relativeX: 0, linefeed: 0));
+                            list.add(LineText(type: LineText.TYPE_TEXT, content: widget.customerName, weight: 1, align: LineText.ALIGN_LEFT, x: 130, relativeX: 0, linefeed: 1));
                             list.add(LineText(type: LineText.TYPE_TEXT, content: 'Cashier:', weight: 1, align: LineText.ALIGN_LEFT, x: 0, relativeX: 0, linefeed: 0));
                             list.add(LineText(type: LineText.TYPE_TEXT, content: "DinethriG", weight: 1, align: LineText.ALIGN_LEFT, x: 110, relativeX: 0, linefeed: 1));
                             list.add(LineText(type: LineText.TYPE_TEXT, content: getCurrentDateTime(), weight: 1, align: LineText.ALIGN_LEFT, x: 0, relativeX: 0, linefeed: 1));
@@ -464,7 +474,6 @@ class _PrinterPageState extends State<PrinterPage> {
 
                             await bluetoothPrint.printReceipt(config, list);
 
-                            showPrintedSuccessfullyDialog(context);
                             addSale(context, billNo: generatedReceiptId(), cashier: "DinethriG", billDetails: receiptString, subTotal: widget.subTotal);
                           }:null,
                         ),

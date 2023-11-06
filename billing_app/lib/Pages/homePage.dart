@@ -2,8 +2,6 @@ import 'package:billing_app/Pages/printerPage.dart';
 import 'package:billing_app/Pages/salesPage.dart';
 import 'package:flutter/material.dart';
 
-
-
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
@@ -27,8 +25,7 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-
-
+  final TextEditingController _customerNameController = TextEditingController();
 
   List<Item> items = [
     Item("#001", "Samba 25Kg", 7250.00, 0, 0.00),
@@ -40,49 +37,68 @@ class _HomePageState extends State<HomePage> {
     Item("#007", "Rathu Samba 25Kg", 5500.00, 0, 0.00),
   ];
 
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        leading: IconButton(onPressed: () { Navigator.push(
-          context,
-          MaterialPageRoute(
-              builder: (context) => SalesPage()
-          ),
-        ); }, icon: Icon(Icons.business_center),),
+        leading: IconButton(
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => SalesPage()),
+            );
+          },
+          icon: Icon(Icons.business_center),
+        ),
         title: Center(child: Text('Gunasewana Mills')),
       ),
-      body: ListView.builder(
-        itemCount: items.length,
-        itemBuilder: (context, index) {
-          return ItemTile(
-            item: items[index],
-            onQuantityChanged: (int value) {
-              setState(() {
-                items[index].quantity = value;
-                if (items[index].isSelected) {
-                  items[index].total = value * items[index].price; // Update the total if selected
-                }
-              });
-            },
-            onSelectedChanged: (bool value) {
-              setState(() {
-                items[index].isSelected = value;
-                if (value) {
-                  items[index].total = items[index].quantity * items[index].price; // Update the total when selecting
-                } else {
-                  items[index].total = 0; // Set the total to 0 when deselecting
-                }
-              });
-            },
-          );
-        },
+      body: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: TextField(
+              controller: _customerNameController,
+              decoration: InputDecoration(
+                labelText: 'Customer Name',
+              ),
+            ),
+          ),
+          Expanded(
+            child: ListView.builder(
+              itemCount: items.length,
+              itemBuilder: (context, index) {
+                return ItemTile(
+                  item: items[index],
+                  onQuantityChanged: (int value) {
+                    setState(() {
+                      items[index].quantity = value;
+                      if (items[index].isSelected) {
+                        items[index].total = value * items[index].price;
+                      }
+                    });
+                  },
+                  onSelectedChanged: (bool value) {
+                    setState(() {
+                      items[index].isSelected = value;
+                      if (value) {
+                        items[index].total =
+                            items[index].quantity * items[index].price;
+                      } else {
+                        items[index].total = 0;
+                      }
+                    });
+                  },
+                );
+              },
+            ),
+          ),
+        ],
       ),
       floatingActionButton: ElevatedButton(
         onPressed: () {
           // Filter selected items
-          List<Item> selectedItems = items.where((item) => item.isSelected).toList();
+          List<Item> selectedItems =
+              items.where((item) => item.isSelected).toList();
 
           // Calculate subtotal for selected items
           double subtotal = 0;
@@ -100,7 +116,11 @@ class _HomePageState extends State<HomePage> {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => PrinterPage(selectedItems: selectedItems, subTotal: stSubtotal,),
+              builder: (context) => PrinterPage(
+                selectedItems: selectedItems,
+                subTotal: stSubtotal,
+                customerName: _customerNameController.text,
+              ),
             ),
           );
         },
@@ -112,7 +132,8 @@ class _HomePageState extends State<HomePage> {
   void printSelectedItems(List<Item> selectedItems) {
     print('Selected Items:');
     for (var item in selectedItems) {
-      print('Name: ${item.name}, Price: ${item.price.toStringAsFixed(2)}, Quantity: ${item.quantity}, Total: ${item.total.toStringAsFixed(2)}');
+      print(
+          'Name: ${item.name}, Price: ${item.price.toStringAsFixed(2)}, Quantity: ${item.quantity}, Total: ${item.total.toStringAsFixed(2)}');
     }
   }
 }
@@ -203,5 +224,6 @@ class Item {
   double total;
   bool isSelected;
 
-  Item(this.itemCode, this.name, this.price, this.quantity, this.total, {this.isSelected = false});
+  Item(this.itemCode, this.name, this.price, this.quantity, this.total,
+      {this.isSelected = false});
 }
