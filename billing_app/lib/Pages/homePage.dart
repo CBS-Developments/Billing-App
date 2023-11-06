@@ -41,16 +41,29 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        leading: IconButton(
-          onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => SalesPage()),
-            );
-          },
-          icon: Icon(Icons.business_center),
+        title: Text('Gunasewana Mills'),
+      ),
+
+      drawer: Drawer(
+        child: ListView(
+          children: <Widget>[
+            // UserAccountsDrawerHeader(
+            //   accountName: Text('Your Name'),
+            //   accountEmail: Text('youremail@example.com'),
+            // ),
+            ListTile(
+              leading: Icon(Icons.business_center),
+              title: Text('Sales'),
+              onTap: () {
+                Navigator.pop(context); // Close the drawer
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => SalesPage()),
+                );
+              },
+            ),
+          ],
         ),
-        title: Center(child: Text('Gunasewana Mills')),
       ),
       body: Column(
         children: [

@@ -1,7 +1,7 @@
-
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 class SalesPage extends StatefulWidget {
   @override
@@ -12,8 +12,7 @@ class _SalesPageState extends State<SalesPage> {
   List<Bill> salesData = [];
 
   Future<List<Bill>> getSalesList() async {
-    salesData.clear(); // Assuming that `comments` is a List<Comment> in your class
-
+    salesData.clear();
 
     const url = "http://dev.workspace.cbs.lk/getSales.php";
     http.Response response = await http.post(
@@ -40,96 +39,148 @@ class _SalesPageState extends State<SalesPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text("Sales"),
+    return DefaultTabController(
+      length: 3, // Number of tabs (All, Today, This Month)
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text("Sales"),
+          bottom: TabBar(
+            tabs: [
+              Tab(text: "All"),
+              Tab(text: "Today"),
+              Tab(text: "This Month"),
+            ],
+          ),
+        ),
+        body: TabBarView(
+          children: [
+            buildSalesList("All"),
+            buildSalesList("Today"),
+            buildSalesList("This Month"),
+          ],
+        ),
       ),
-body: FutureBuilder<List<Bill>>(
-  future: getSalesList(),
-  builder: (context, snapshot) {
-    if (snapshot.hasData) {
-      List<Bill>? data = snapshot.data;
-      return ListView.builder(
-        itemCount: data!.length,
-        itemBuilder: (context, index) {
-          return SingleChildScrollView(
-            child: Column(
-              children: [
-                ListTile(
-                  title: Row(
-                    mainAxisAlignment:
-                    MainAxisAlignment
-                        .spaceBetween,
-                    children: [
-                      Column(
-                        crossAxisAlignment:
-                        CrossAxisAlignment.start,
+    );
+  }
+
+  // A helper method to build the sales list based on the selected tab
+  Widget buildSalesList(String tabName) {
+    return FutureBuilder<List<Bill>>(
+      future: getSalesList(),
+      builder: (context, snapshot) {
+        if (snapshot.hasData) {
+          List<Bill>? data = snapshot.data;
+          data = filterSalesData(data, tabName); // Filter data based on tab
+          return ListView.builder(
+            itemCount: data!.length,
+            itemBuilder: (context, index) {
+              return SingleChildScrollView(
+                child: Column(
+                  children: [
+                    ListTile(
+                      title: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          SelectableText(
-                            data[index].billNo,
-                            style: TextStyle(
-                                fontSize: 14,
-                                color: Colors
-                                    .blueAccent),
-                          ),
-                          SizedBox(
-                            height: 2,
-                          ),
-                          Row(
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(
-                                data[index]
-                                    .billDate,
-                                style: TextStyle(
-                                    fontSize: 10,
-                                    color:
-                                    Colors.grey),
+                              Row(
+                                children: [
+                                  Text(
+                                    'Bill No: ',
+                                    style: TextStyle(
+                                        fontSize: 15, color: Colors.black),
+                                  ),
+                                  SelectableText(
+                                    data![index].billNo,
+                                    style: TextStyle(
+                                        fontSize: 15, color: Colors.blueAccent),
+                                  ),
+                                ],
                               ),
-                              Text(
-                                '    by: ',
-                                style: TextStyle(
-                                    fontSize: 10,
-                                    color:
-                                    Colors.grey),
-                              ),
-                              Text(
-                                data[index]
-                                    .subTotal,
-                                style: TextStyle(
-                                    fontSize: 10,
-                                    color:
-                                    Colors.grey),
+                              Row(
+                                children: [
+                                  Text(
+                                   '${data![index].customer} | ${data![index].billDate} ${data![index].dateTime} ',
+                                    style: TextStyle(
+                                        fontSize: 14, color: Colors.black),
+                                  ),
+                                ],
                               ),
                             ],
                           ),
+
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                mainAxisSize: MainAxisSize.min, // This ensures the Container only takes the width of its child
+                                children: [
+                                  Container(
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(20),
+                                      color: Colors.white,
+                                      border: Border.all(
+                                        color: Colors.grey.shade500,
+                                        width: 1.0,
+                                      ),
+                                    ),
+                                    child: Center(
+                                      child: Padding(
+                                        padding: const EdgeInsets.all(5.0),
+                                        child: Row(
+                                          children: [
+                                            Text(' Rs. ${data![index].subTotal} ', style: TextStyle(fontSize: 16))
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+
                         ],
                       ),
-                    ],
-                  ),
-                  // You can add more ListTile properties as needed
+                    ),
+                    Divider()
+                  ],
                 ),
-                Divider()
-                // Add dividers or spacing as needed between ListTiles
-                // Example: Adds a divider between ListTiles
-              ],
-            ),
+              );
+            },
           );
-        },
-      );
-    } else if (snapshot.hasError) {
-      return const Text("-Empty-");
-    }
-    return const Text("Loading...");
-  },
-),
-
+        } else if (snapshot.hasError) {
+          return const Text("-Empty-");
+        }
+        return const Text("Loading...");
+      },
     );
+  }
+
+  // A helper method to filter data based on the selected tab
+  List<Bill> filterSalesData(List<Bill>? data, String tabName) {
+    final now = DateTime.now();
+    final formatter = DateFormat('yyyy-MM-dd');
+    final currentMonth = DateFormat('yyyy-MM').format(now);
+
+    switch (tabName) {
+      case "Today":
+        final todayDate = formatter.format(now);
+        return data?.where((bill) => bill.billDate == todayDate).toList() ?? [];
+      case "This Month":
+        return data?.where((bill) => bill.billMonth == currentMonth).toList() ?? [];
+      default:
+        return data ?? [];
+    }
   }
 }
 
 
+
 class Bill {
   final String billNo;
+  final String customer;
   final String dateTime;
   final String billDate;
   final String billMonth;
@@ -139,6 +190,7 @@ class Bill {
 
   Bill({
     required this.billNo,
+    required this.customer,
     required this.dateTime,
     required this.billDate,
     required this.billMonth,
@@ -151,6 +203,7 @@ class Bill {
   factory Bill.fromJson(Map<String, dynamic> json) {
     return Bill(
       billNo: json['bill_no'],
+      customer: json['customer_'],
       dateTime: json['date_time'],
       billDate: json['bill_date'],
       billMonth: json['bill_month'],

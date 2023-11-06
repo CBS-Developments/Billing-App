@@ -125,6 +125,7 @@ class _PrinterPageState extends State<PrinterPage> {
 
   Future<void> addSale(BuildContext context,{
     required billNo,
+    required customer,
     required cashier,
     required billDetails,
     required subTotal,
@@ -134,6 +135,7 @@ class _PrinterPageState extends State<PrinterPage> {
 
     var data = {
       "bill_no": billNo,
+      "customer_": customer,
       "date_time": getCurrentTime(),
       "bill_date": getCurrentDate(),
       "bill_month": getCurrentMonth(),
@@ -474,7 +476,7 @@ class _PrinterPageState extends State<PrinterPage> {
 
                             await bluetoothPrint.printReceipt(config, list);
 
-                            addSale(context, billNo: generatedReceiptId(), cashier: "DinethriG", billDetails: receiptString, subTotal: widget.subTotal);
+                            addSale(context, billNo: generatedReceiptId(), cashier: "DinethriG", billDetails: receiptString, subTotal: widget.subTotal, customer: widget.customerName);
                           }:null,
                         ),
 
