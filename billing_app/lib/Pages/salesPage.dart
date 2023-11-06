@@ -103,7 +103,7 @@ class _SalesPageState extends State<SalesPage> {
                                   Text(
                                    '${data![index].customer} | ${data![index].billDate} ${data![index].dateTime} ',
                                     style: TextStyle(
-                                        fontSize: 14, color: Colors.black),
+                                        fontSize: 13, color: Colors.black),
                                   ),
                                 ],
                               ),
@@ -130,7 +130,7 @@ class _SalesPageState extends State<SalesPage> {
                                         padding: const EdgeInsets.all(5.0),
                                         child: Row(
                                           children: [
-                                            Text(' Rs. ${data![index].subTotal} ', style: TextStyle(fontSize: 16))
+                                            Text(' Rs. ${data![index].subTotal} ', style: TextStyle(fontSize: 15))
                                           ],
                                         ),
                                       ),
