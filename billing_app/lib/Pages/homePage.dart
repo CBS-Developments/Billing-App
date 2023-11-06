@@ -1,4 +1,5 @@
 import 'package:billing_app/Pages/printerPage.dart';
+import 'package:billing_app/Pages/salesPage.dart';
 import 'package:flutter/material.dart';
 
 
@@ -44,7 +45,12 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        automaticallyImplyLeading: false,
+        leading: IconButton(onPressed: () { Navigator.push(
+          context,
+          MaterialPageRoute(
+              builder: (context) => SalesPage()
+          ),
+        ); }, icon: Icon(Icons.business_center),),
         title: Center(child: Text('Gunasewana Mills')),
       ),
       body: ListView.builder(

@@ -139,6 +139,7 @@ class _PrinterPageState extends State<PrinterPage> {
       "cashier_": cashier,
       "bill_details": billDetails,
       "sub_total": subTotal,
+      "status_":'1',
     };
 
     http.Response res = await http.post(
