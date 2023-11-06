@@ -1,6 +1,6 @@
-import 'dart:convert';
-import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 import 'package:intl/intl.dart';
 
 class SalesPage extends StatefulWidget {
@@ -10,18 +10,30 @@ class SalesPage extends StatefulWidget {
 
 class _SalesPageState extends State<SalesPage> {
   List<Bill> salesData = [];
+  DateTime selectedDate = DateTime.now(); // Initialize with the current date
+  String filterType = "All"; // Default filter type
 
-  Future<List<Bill>> getSalesList() async {
+  Future<List<Bill>> getSalesList(String filterType, DateTime? selectedDate) async {
     salesData.clear();
 
     const url = "http://dev.workspace.cbs.lk/getSales.php";
+    String formattedDate = '';
+
+    if (selectedDate != null) {
+      formattedDate = DateFormat('yyyy-MM-dd').format(selectedDate);
+    }
+
     http.Response response = await http.post(
       Uri.parse(url),
       headers: {
-        "Accept": "application/json",
+        "Accept": "application.json",
         "Content-Type": "application/x-www-form-urlencoded",
       },
       encoding: Encoding.getByName("utf-8"),
+      body: {
+        "selectedDate": formattedDate,
+        "filterType": filterType, // Pass the filter type to the API
+      },
     );
 
     if (response.statusCode == 200) {
@@ -40,23 +52,26 @@ class _SalesPageState extends State<SalesPage> {
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
-      length: 3, // Number of tabs (All, Today, This Month)
+      length: 4, // Number of tabs (Today, This Month, All, Filter)
       child: Scaffold(
         appBar: AppBar(
           title: Text("Sales"),
           bottom: TabBar(
             tabs: [
-              Tab(text: "All"),
               Tab(text: "Today"),
-              Tab(text: "This Month"),
+              Tab(text: "Month"),
+              Tab(text: "All"),
+              Tab( icon: Icon(Icons.filter_list),
+              ), // New tab for filtering
             ],
           ),
         ),
         body: TabBarView(
           children: [
-            buildSalesList("All"),
-            buildSalesList("Today"),
-            buildSalesList("This Month"),
+            buildSalesList("Today", selectedDate),
+            buildSalesList("This Month", selectedDate),
+            buildSalesList("All", selectedDate),
+            buildFilterTab(), // Use a separate method for the Filter tab
           ],
         ),
       ),
@@ -64,13 +79,13 @@ class _SalesPageState extends State<SalesPage> {
   }
 
   // A helper method to build the sales list based on the selected tab
-  Widget buildSalesList(String tabName) {
+  Widget buildSalesList(String tabName, DateTime? selectedDate) {
     return FutureBuilder<List<Bill>>(
-      future: getSalesList(),
+      future: getSalesList(tabName, selectedDate),
       builder: (context, snapshot) {
         if (snapshot.hasData) {
           List<Bill>? data = snapshot.data;
-          data = filterSalesData(data, tabName); // Filter data based on tab
+          data = filterSalesData(data, tabName, selectedDate);
 
           // Calculate the total sales for today and this month
           double totalSales = 0;
@@ -113,7 +128,7 @@ class _SalesPageState extends State<SalesPage> {
                                     Row(
                                       children: [
                                         Text(
-                                          '${data![index].customer} | ${data![index].billDate} ${data![index].dateTime} ',
+                                          '${data![index].customer} | ${data[index].billDate} ${data[index].dateTime} ',
                                           style: TextStyle(
                                               fontSize: 13, color: Colors.black),
                                         ),
@@ -126,7 +141,7 @@ class _SalesPageState extends State<SalesPage> {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Row(
-                                      mainAxisSize: MainAxisSize.min, // This ensures the Container only takes the width of its child
+                                      mainAxisSize: MainAxisSize.min,
                                       children: [
                                         Container(
                                           decoration: BoxDecoration(
@@ -181,10 +196,8 @@ class _SalesPageState extends State<SalesPage> {
     );
   }
 
-
-
-  // A helper method to filter data based on the selected tab
-  List<Bill> filterSalesData(List<Bill>? data, String tabName) {
+  // A helper method to filter data based on the selected tab and date
+  List<Bill> filterSalesData(List<Bill>? data, String tabName, DateTime? selectedDate) {
     final now = DateTime.now();
     final formatter = DateFormat('yyyy-MM-dd');
     final currentMonth = DateFormat('yyyy-MM').format(now);
@@ -196,12 +209,52 @@ class _SalesPageState extends State<SalesPage> {
       case "This Month":
         return data?.where((bill) => bill.billMonth == currentMonth).toList() ?? [];
       default:
-        return data ?? [];
+        if (tabName == "Filter" && selectedDate != null) {
+          final selectedDateStr = formatter.format(selectedDate);
+          return data?.where((bill) => bill.billDate == selectedDateStr).toList() ?? [];
+        } else {
+          return data ?? [];
+        }
+    }
+  }
+
+  // A helper method to build the Filter tab with a date picker button
+  Widget buildFilterTab() {
+    return Column(
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            ElevatedButton(
+              onPressed: () {
+                _selectDate(context);
+              },
+              child: Text("Select Date"),
+            ),
+          ],
+        ),
+        Expanded(
+          child: buildSalesList("Filter", selectedDate),
+        ),
+      ],
+    );
+  }
+
+  // A helper method to open a date picker dialog
+  Future<void> _selectDate(BuildContext context) async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: selectedDate,
+      firstDate: DateTime(2000),
+      lastDate: DateTime(2101),
+    );
+    if (picked != null && picked != selectedDate) {
+      setState(() {
+        selectedDate = picked;
+      });
     }
   }
 }
-
-
 
 class Bill {
   final String billNo;
