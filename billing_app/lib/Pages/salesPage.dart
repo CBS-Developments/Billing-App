@@ -61,8 +61,10 @@ class _SalesPageState extends State<SalesPage> {
               Tab(text: "Today"),
               Tab(text: "Month"),
               Tab(text: "All"),
-              Tab( icon: Icon(Icons.filter_list),
-              ), // New tab for filtering
+              Tab(
+                icon: Icon(Icons.filter_list), // Add an icon to the Filter tab
+
+              ),
             ],
           ),
         ),
@@ -87,24 +89,19 @@ class _SalesPageState extends State<SalesPage> {
           List<Bill>? data = snapshot.data;
           data = filterSalesData(data, tabName, selectedDate);
 
-          // Calculate the total sales for today and this month
-          double totalSales = 0;
-          if (tabName == "Today" || tabName == "This Month") {
-            for (var bill in data) {
-              totalSales += double.parse(bill.subTotal);
-            }
-          }
-
           return Column(
             children: [
               Expanded(
                 child: ListView.builder(
                   itemCount: data!.length,
                   itemBuilder: (context, index) {
-                    return SingleChildScrollView(
-                      child: Column(
-                        children: [
-                          ListTile(
+                    return Column(
+                      children: [
+                        GestureDetector(
+                          onTap: () {
+                            _showBillDetailsDialog(context, data![index].billDetails);
+                          },
+                          child: ListTile(
                             title: Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
@@ -128,7 +125,7 @@ class _SalesPageState extends State<SalesPage> {
                                     Row(
                                       children: [
                                         Text(
-                                          '${data![index].customer} | ${data[index].billDate} ${data[index].dateTime} ',
+                                          '${data[index].customer} | ${data[index].billDate} ${data[index].dateTime} ',
                                           style: TextStyle(
                                               fontSize: 13, color: Colors.black),
                                         ),
@@ -136,7 +133,6 @@ class _SalesPageState extends State<SalesPage> {
                                     ),
                                   ],
                                 ),
-
                                 Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
@@ -157,7 +153,7 @@ class _SalesPageState extends State<SalesPage> {
                                               padding: const EdgeInsets.all(5.0),
                                               child: Row(
                                                 children: [
-                                                  Text(' Rs. ${data![index].subTotal} ', style: TextStyle(fontSize: 15))
+                                                  Text(' Rs. ${data[index].subTotal} ', style: TextStyle(fontSize: 15)),
                                                 ],
                                               ),
                                             ),
@@ -170,22 +166,21 @@ class _SalesPageState extends State<SalesPage> {
                               ],
                             ),
                           ),
-                          Divider()
-                        ],
-                      ),
+                        ),
+                        Divider(), // Add a divider
+                      ],
                     );
                   },
                 ),
               ),
               // Section to display the total sales
-              if (tabName == "Today" || tabName == "This Month")
-                Container(
-                  padding: EdgeInsets.all(16),
-                  child: Text(
-                    "Total Sales for $tabName: Rs. ${totalSales.toStringAsFixed(2)}",
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                  ),
+              Container(
+                padding: EdgeInsets.all(16),
+                child: Text(
+                  "Total Sales for $tabName: Rs. ${calculateTotalSales(data)}",
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                 ),
+              ),
             ],
           );
         } else if (snapshot.hasError) {
@@ -218,6 +213,15 @@ class _SalesPageState extends State<SalesPage> {
     }
   }
 
+  // A helper method to calculate the total sales
+  String calculateTotalSales(List<Bill>? data) {
+    double totalSales = 0;
+    for (var bill in data!) {
+      totalSales += double.parse(bill.subTotal);
+    }
+    return totalSales.toStringAsFixed(2);
+  }
+
   // A helper method to build the Filter tab with a date picker button
   Widget buildFilterTab() {
     return Column(
@@ -233,10 +237,35 @@ class _SalesPageState extends State<SalesPage> {
             ),
           ],
         ),
+        Text(
+          "Selected Date: ${DateFormat('yyyy-MM-dd').format(selectedDate)}",
+          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+        ),
         Expanded(
           child: buildSalesList("Filter", selectedDate),
         ),
       ],
+    );
+  }
+
+  // A helper method to show the dialog with billDetails
+  void _showBillDetailsDialog(BuildContext context, String billDetails) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text("Bill Details"),
+          content: Text(billDetails),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text("Close"),
+            ),
+          ],
+        );
+      },
     );
   }
 
@@ -291,3 +320,4 @@ class Bill {
     );
   }
 }
+
