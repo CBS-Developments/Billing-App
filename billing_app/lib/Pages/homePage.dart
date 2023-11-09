@@ -15,6 +15,7 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   final TextEditingController _customerNameController = TextEditingController();
   List<Item> items = [];
+
   @override
   void initState() {
     super.initState();
@@ -26,18 +27,12 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<List<Item>> fetchItems() async {
-
     const url = "http://dev.workspace.cbs.lk/getItems.php";
-
     http.Response response = await http.get(Uri.parse(url));
 
     if (response.statusCode == 200) {
       List jsonResponse = json.decode(response.body);
       if (jsonResponse != null) {
-        // Print raw data for debugging
-        print('Raw Data: $jsonResponse');
-
-        // Map the JSON data to a list of Item objects
         List<Item> items = jsonResponse.map((item) => Item(
           item['item_code'],
           item['item_name'],
@@ -45,20 +40,19 @@ class _HomePageState extends State<HomePage> {
           0,
           0.0,
           isSelected: false,
+          availableQuantity: int.parse(item['available_quantity'].toString()), // Convert to int
         )).toList();
 
-        // Print parsed items for debugging
-        print('Items: $items');
 
         return items;
       }
 
       return [];
     } else {
-      throw Exception('Failed to load data from the API. Status Code: ${response.statusCode}');
+      throw Exception(
+          'Failed to load data from the API. Status Code: ${response.statusCode}');
     }
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -66,19 +60,25 @@ class _HomePageState extends State<HomePage> {
       appBar: AppBar(
         title: Text('Gunasewana Mills'),
       ),
-
       drawer: Drawer(
         child: ListView(
           children: <Widget>[
-            // UserAccountsDrawerHeader(
-            //   accountName: Text('Your Name'),
-            //   accountEmail: Text('youremail@example.com'),
-            // ),
             ListTile(
-              leading: Icon(Icons.business_center),
+              leading: Icon(Icons.insert_chart_outlined_rounded,),
               title: Text('Sales'),
               onTap: () {
-                Navigator.pop(context); // Close the drawer
+                Navigator.pop(context);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => SalesPage()),
+                );
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.business_center_outlined),
+              title: Text('Items'),
+              onTap: () {
+                Navigator.pop(context);
                 Navigator.push(
                   context,
                   MaterialPageRoute(builder: (context) => SalesPage()),
@@ -132,21 +132,15 @@ class _HomePageState extends State<HomePage> {
       ),
       floatingActionButton: ElevatedButton(
         onPressed: () {
-          // Filter selected items
           List<Item> selectedItems =
-              items.where((item) => item.isSelected).toList();
-
-          // Calculate subtotal for selected items
+          items.where((item) => item.isSelected).toList();
           double subtotal = 0;
           for (var item in selectedItems) {
             subtotal += item.total;
           }
           String stSubtotal = subtotal.toStringAsFixed(2);
 
-          // Print the selected items
           printSelectedItems(selectedItems);
-
-          // Print the subtotal
           print('Subtotal: ${stSubtotal}');
 
           Navigator.push(
@@ -169,7 +163,7 @@ class _HomePageState extends State<HomePage> {
     print('Selected Items:');
     for (var item in selectedItems) {
       print(
-          'Name: ${item.name}, Price: ${item.price.toStringAsFixed(2)}, Quantity: ${item.quantity}, Total: ${item.total.toStringAsFixed(2)}');
+          'Name: ${item.name}, Price: ${item.price.toStringAsFixed(2)}, Quantity: ${item.quantity}, Total: ${item.total.toStringAsFixed(2)}, Available Quantity: ${item.availableQuantity}');
     }
   }
 }
@@ -211,7 +205,13 @@ class _ItemTileState extends State<ItemTile> {
       },
       child: ListTile(
         title: Text(widget.item.name),
-        subtitle: Text('Rs:${widget.item.price.toStringAsFixed(2)}'),
+        subtitle: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('Rs:${widget.item.price.toStringAsFixed(2)}'),
+            Text('Available Quantity: ${widget.item.availableQuantity}'),
+          ],
+        ),
         leading: Checkbox(
           value: selected,
           onChanged: (newValue) {
@@ -253,13 +253,14 @@ class _ItemTileState extends State<ItemTile> {
 }
 
 class Item {
-  final String itemCode; // Add item code property
+  final String itemCode;
   final String name;
   final double price;
   int quantity;
   double total;
   bool isSelected;
+  int availableQuantity;
 
   Item(this.itemCode, this.name, this.price, this.quantity, this.total,
-      {this.isSelected = false});
+      {this.isSelected = false, required this.availableQuantity});
 }
