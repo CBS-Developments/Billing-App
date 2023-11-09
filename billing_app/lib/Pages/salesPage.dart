@@ -122,14 +122,15 @@ class _SalesPageState extends State<SalesPage> {
                                         ),
                                       ],
                                     ),
-                                    Row(
-                                      children: [
-                                        Text(
-                                          '${data[index].customer} | ${data[index].billDate} ${data[index].dateTime} ',
-                                          style: TextStyle(
-                                              fontSize: 13, color: Colors.black),
-                                        ),
-                                      ],
+                                    Text(
+                                      data![index].customer,
+                                      style: TextStyle(
+                                          fontSize: 15, color: Colors.black),
+                                    ),
+                                    Text(
+                                      '${data[index].billDate} ${data[index].dateTime} ',
+                                      style: TextStyle(
+                                          fontSize: 13, color: Colors.grey),
                                     ),
                                   ],
                                 ),
