@@ -5,6 +5,8 @@ import 'package:billing_app/Pages/salesPage.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
+import 'itemsPage.dart';
+
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
 
@@ -89,7 +91,7 @@ class _HomePageState extends State<HomePage> {
                 Navigator.pop(context);
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => SalesPage()),
+                  MaterialPageRoute(builder: (context) => ItemsPage()),
                 );
               },
             ),
