@@ -1,7 +1,9 @@
+import 'dart:convert';
+
 import 'package:billing_app/Pages/printerPage.dart';
 import 'package:billing_app/Pages/salesPage.dart';
 import 'package:flutter/material.dart';
-
+import 'package:http/http.dart' as http;
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -12,16 +14,51 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   final TextEditingController _customerNameController = TextEditingController();
+  List<Item> items = [];
+  @override
+  void initState() {
+    super.initState();
+    fetchItems().then((fetchedItems) {
+      setState(() {
+        items = fetchedItems;
+      });
+    });
+  }
 
-  List<Item> items = [
-    Item("#001", "Samba 25Kg", 7250.00, 0, 0.00),
-    Item("#002", "Naadu 25Kg", 4875.00, 0, 0.00),
-    Item("#003", "Sudu Kakulu 25Kg", 5250.00, 0, 0.00),
-    Item("#004", "Keeri Samba 25Kg", 8500.00, 0, 0.00),
-    Item("#005", "Rosa Kakulu 25Kg", 5375.00, 0, 0.00),
-    Item("#006", "Rathu Nadu 25Kg", 4250.00, 0, 0.00),
-    Item("#007", "Rathu Samba 25Kg", 5500.00, 0, 0.00),
-  ];
+  Future<List<Item>> fetchItems() async {
+
+    const url = "http://dev.workspace.cbs.lk/getItems.php";
+
+    http.Response response = await http.get(Uri.parse(url));
+
+    if (response.statusCode == 200) {
+      List jsonResponse = json.decode(response.body);
+      if (jsonResponse != null) {
+        // Print raw data for debugging
+        print('Raw Data: $jsonResponse');
+
+        // Map the JSON data to a list of Item objects
+        List<Item> items = jsonResponse.map((item) => Item(
+          item['item_code'],
+          item['item_name'],
+          double.parse(item['price'].toString()), // Parse price to double
+          0,
+          0.0,
+          isSelected: false,
+        )).toList();
+
+        // Print parsed items for debugging
+        print('Items: $items');
+
+        return items;
+      }
+
+      return [];
+    } else {
+      throw Exception('Failed to load data from the API. Status Code: ${response.statusCode}');
+    }
+  }
+
 
   @override
   Widget build(BuildContext context) {
