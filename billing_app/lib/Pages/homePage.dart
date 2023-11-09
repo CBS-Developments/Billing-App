@@ -43,7 +43,6 @@ class _HomePageState extends State<HomePage> {
           availableQuantity: int.parse(item['available_quantity'].toString()), // Convert to int
         )).toList();
 
-
         return items;
       }
 
@@ -52,6 +51,15 @@ class _HomePageState extends State<HomePage> {
       throw Exception(
           'Failed to load data from the API. Status Code: ${response.statusCode}');
     }
+  }
+
+  Map<String, int> getAvailableQuantities(List<Item> items) {
+    Map<String, int> availableQuantities = {};
+    for (var item in items) {
+      int nowAvailableQuantity = item.availableQuantity - item.quantity;
+      availableQuantities[item.itemCode] = nowAvailableQuantity;
+    }
+    return availableQuantities;
   }
 
   @override
@@ -150,6 +158,7 @@ class _HomePageState extends State<HomePage> {
                 selectedItems: selectedItems,
                 subTotal: stSubtotal,
                 customerName: _customerNameController.text,
+                availableQuantities: getAvailableQuantities(selectedItems),
               ),
             ),
           );

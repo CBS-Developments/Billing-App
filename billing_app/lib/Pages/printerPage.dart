@@ -15,7 +15,8 @@ class PrinterPage extends StatefulWidget {
   final List<Item> selectedItems;
   final String subTotal;
   final String customerName;
-  PrinterPage({super.key, required this.selectedItems, required this.subTotal, required this.customerName, });
+  final Map<String, int> availableQuantities;
+  PrinterPage({super.key, required this.selectedItems, required this.subTotal, required this.customerName, required this.availableQuantities, });
 
   @override
   State<PrinterPage> createState() => _PrinterPageState();
@@ -372,6 +373,9 @@ class _PrinterPageState extends State<PrinterPage> {
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: <Widget>[
+                        Text("Now Available Quantities", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                        Text(widget.availableQuantities.toString()),
+
                         Text("Receipt Preview", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
                         // Add your receipt information here, you can use a ListView or Column
                         // to display the list of selected items and their details.
@@ -382,8 +386,12 @@ class _PrinterPageState extends State<PrinterPage> {
                           itemBuilder: (context, index) {
                             Item item = widget.selectedItems[index];
                             return ListTile(
-                              title: Text(item.name),
-                              subtitle: Text("Price: ${item.price} | Quantity: ${item.quantity} | Total: ${item.total}"),
+                              title: Text("${item.itemCode} | ${item.name} "),
+                              subtitle: Column(
+                                children: [
+                                  Text("Price: ${item.price} | Quantity: ${item.quantity} | Total: ${item.total}"),
+                                ],
+                              ),
                             );
                           },
                         ),
