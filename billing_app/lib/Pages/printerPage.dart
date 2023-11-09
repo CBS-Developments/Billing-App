@@ -123,6 +123,39 @@ class _PrinterPageState extends State<PrinterPage> {
     return receiptBuffer.toString();
   }
 
+  Future<void> updateAvailableQuantities(Map<String, int> updatedQuantities) async {
+    try {
+      var url = "http://dev.workspace.cbs.lk/updateAvailableQuantity.php";
+
+      var data = {
+        "quantities": updatedQuantities,
+      };
+
+      http.Response res = await http.post(
+        Uri.parse(url),
+        body: jsonEncode(data),
+        headers: {
+          "Accept": "application/json",
+          "Content-Type": "application/json",
+        },
+      );
+
+      print("Response Code: ${res.statusCode}");
+      print("Response Body: ${res.body}");
+
+      if (res.statusCode == 200) {
+        if (jsonDecode(res.body) == "true") {
+          print("Available quantities updated successfully");
+        }
+      } else {
+        print("Failed to connect to the server. Status Code: ${res.statusCode}");
+      }
+    } catch (error) {
+      print("Error: $error");
+    }
+  }
+
+
 
   Future<void> addSale(BuildContext context,{
     required billNo,
@@ -485,6 +518,7 @@ class _PrinterPageState extends State<PrinterPage> {
                             await bluetoothPrint.printReceipt(config, list);
 
                             addSale(context, billNo: generatedReceiptId(), cashier: "DinethriG", billDetails: receiptString, subTotal: widget.subTotal, customer: widget.customerName);
+                            updateAvailableQuantities(widget.availableQuantities);
                           }:null,
                         ),
 
