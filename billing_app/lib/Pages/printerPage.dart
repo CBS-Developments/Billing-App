@@ -313,6 +313,10 @@ class _PrinterPageState extends State<PrinterPage> {
 
                 await bluetoothPrint.printReceipt(config, list);
                 Navigator.of(context).pop();
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => HomePage()),
+                );
               }:null,
             ),
           ],

@@ -1,3 +1,4 @@
+import 'package:billing_app/Pages/homePage.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -55,6 +56,12 @@ class _SalesPageState extends State<SalesPage> {
       length: 4, // Number of tabs (Today, This Month, All, Filter)
       child: Scaffold(
         appBar: AppBar(
+          leading: IconButton(icon: Icon(Icons.arrow_back_rounded), onPressed: () {
+            Navigator.pop(context);
+            Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => HomePage()),);
+          },),
           title: Text("Sales"),
           bottom: TabBar(
             tabs: [
