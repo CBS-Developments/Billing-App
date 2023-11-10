@@ -44,7 +44,7 @@ class _AddingItemsPageState extends State<AddingItemsPage> {
       "item_name": name,
       "price": price.toString(),
       "available_quantity": quantity.toString(),
-      "status_" :' 1',
+      "status_" :'1',
       // Add other required parameters for your API
     };
 
