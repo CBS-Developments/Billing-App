@@ -1,4 +1,5 @@
 import 'package:billing_app/Pages/itemsAddingPage.dart';
+import 'package:billing_app/Pages/priceChangePage.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -40,6 +41,66 @@ class _ItemsPageState extends State<ItemsPage> {
     }
   }
 
+  void showRemoveConfirmationDialog(BuildContext context, String itemCode) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Confirm Remove'),
+          content: const Text('Are you sure you want to remove this item?'),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('Cancel'),
+              onPressed: () {
+                Navigator.of(context).pop(); // Close the dialog
+              },
+            ),
+            TextButton(
+              child: const Text('Delete'),
+              onPressed: () {
+                // deleteMainTask(taskId); // Call the deleteMainTask method
+                Navigator.of(context).pop(); // Close the dialog
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void showMoreOptions(Item selectedItem) {
+    showModalBottomSheet(
+      context: context,
+      builder: (BuildContext context) {
+        return Column(
+          mainAxisSize: MainAxisSize.min,
+          children: <Widget>[
+            ListTile(
+              title: Text('Change Price'),
+              onTap: () {
+                Navigator.pop(context); // Close the bottom sheet
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => PriceChangePage(item: selectedItem),
+                  ),
+                );
+              },
+            ),
+            ListTile(
+              title: Text('Add Stock'),
+              onTap: () {
+                // Implement the logic for adding stock
+                Navigator.pop(context);
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -76,7 +137,9 @@ class _ItemsPageState extends State<ItemsPage> {
                     Row(
                       children: [
                         IconButton(
-                            onPressed: () {},
+                            onPressed: () {
+                              showRemoveConfirmationDialog(context, items[index].itemCode);
+                            },
                             icon: Icon(
                               Icons.remove_circle_outline_rounded,
                               color: Colors.redAccent,
@@ -84,7 +147,9 @@ class _ItemsPageState extends State<ItemsPage> {
                           tooltip: 'Remove Item',
                         ),
                         IconButton(
-                            onPressed: () {},
+                            onPressed: () {
+                              showMoreOptions(items[index]);
+                            },
                             icon: Icon(
                               Icons.more_vert_rounded,
                               color: Colors.black,
