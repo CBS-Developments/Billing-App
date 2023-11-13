@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
+import 'addStockPage.dart';
 import 'homePage.dart';
 
 class ItemsPage extends StatefulWidget {
@@ -92,6 +93,12 @@ class _ItemsPageState extends State<ItemsPage> {
               onTap: () {
                 // Implement the logic for adding stock
                 Navigator.pop(context);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => AddStockPage(item: selectedItem),
+                  ),
+                );
               },
             ),
           ],
