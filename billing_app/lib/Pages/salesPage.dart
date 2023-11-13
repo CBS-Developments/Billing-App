@@ -57,7 +57,6 @@ class _SalesPageState extends State<SalesPage> {
       child: Scaffold(
         appBar: AppBar(
           leading: IconButton(icon: Icon(Icons.arrow_back_rounded), onPressed: () {
-            Navigator.pop(context);
             Navigator.push(
                 context,
                 MaterialPageRoute(builder: (context) => HomePage()),);

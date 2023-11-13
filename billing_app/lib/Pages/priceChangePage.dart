@@ -1,7 +1,8 @@
 import 'package:billing_app/Pages/itemsPage.dart';
 import 'package:billing_app/sizes.dart';
 import 'package:flutter/material.dart';
-
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 
 class PriceChangePage extends StatefulWidget {
@@ -16,6 +17,94 @@ class PriceChangePage extends StatefulWidget {
 class _PriceChangePageState extends State<PriceChangePage> {
 
   final TextEditingController newPriceController = TextEditingController();
+
+
+  Future<bool> editPrice(
+      String itemCode,
+      String newPrice,
+      ) async {
+    // Prepare the data to be sent to the PHP script.
+    var data = {
+      "item_code": itemCode,
+      "price": newPrice,
+    };
+
+    // URL of your PHP script.
+    const url = "http://dev.workspace.cbs.lk/editPrice.php";
+
+    try {
+      final res = await http.post(
+        Uri.parse(url),
+        body: data,
+        headers: {
+          "Accept": "application/json",
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+      );
+
+      if (res.statusCode == 200) {
+        final responseBody = jsonDecode(res.body);
+
+        // Debugging: Print the response data.
+        print("Response from PHP script: $responseBody");
+
+        if (responseBody == "true") {
+          print('Edit Successful');
+          showEditedSuccessfullyDialog(context);
+          return true; // PHP code was successful.
+        } else {
+          print('PHP code returned "false".');
+          return false; // PHP code returned "false."
+        }
+      } else {
+        print('HTTP request failed with status code: ${res.statusCode}');
+        return false; // HTTP request failed.
+      }
+    } catch (e) {
+      print('Error occurred: $e');
+      return false; // An error occurred.
+    }
+  }
+
+  Future<void> showEditedSuccessfullyDialog(BuildContext context) async {
+    return showDialog<void>(
+      context: context,
+      barrierDismissible:
+      false, // Dialog cannot be dismissed by tapping outside
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Successful'),
+          content: const SingleChildScrollView(
+            child: ListBody(
+              children: <Widget>[
+                Text('Price edited successfully!!'),
+              ],
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: Text('OK'),
+              onPressed: () {
+                Navigator.of(context).pop();
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => ItemsPage()),
+                );
+                // Close the dialog
+              },
+            ),
+            TextButton(
+              child: Text('Cancel'),
+              onPressed: () {
+                Navigator.of(context).pop();
+                // Close the dialog
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -96,6 +185,7 @@ class _PriceChangePageState extends State<PriceChangePage> {
                   children: [
                     ElevatedButton(
                       onPressed: () {
+                        editPrice(widget.item.itemCode, newPriceController.text);
 
                       },
                       child: Text('Save'),
@@ -104,7 +194,9 @@ class _PriceChangePageState extends State<PriceChangePage> {
                     SizedBox(width: 15,),
                     ElevatedButton(
                       onPressed: () {
-
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => ItemsPage()),);
                       },
                       child: Text('Cancel',style: TextStyle(color: Colors.redAccent),),
                     ),
