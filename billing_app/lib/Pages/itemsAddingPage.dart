@@ -251,7 +251,7 @@ class _AddingItemsPageState extends State<AddingItemsPage> {
                     Padding(
                       padding: const EdgeInsets.all(4.0),
                       child: Container(
-                        width: 150, // Adjust the width as needed
+                        width: 125, // Adjust the width as needed
                         decoration: BoxDecoration(
                           border: Border.all(color: Colors.grey),
                           borderRadius: BorderRadius.circular(8),
