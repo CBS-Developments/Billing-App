@@ -130,7 +130,12 @@ class _ItemsPageState extends State<ItemsPage> {
           mainAxisSize: MainAxisSize.min,
           children: <Widget>[
             ListTile(
-              title: Text('Change Price'),
+              title: Row(
+                children: [
+                  Text('Change Price'),
+                  Icon(Icons.price_change_outlined)
+                ],
+              ),
               onTap: () {
                 Navigator.pop(context); // Close the bottom sheet
                 Navigator.push(
@@ -142,7 +147,12 @@ class _ItemsPageState extends State<ItemsPage> {
               },
             ),
             ListTile(
-              title: Text('Add Stock'),
+              title: Row(
+                children: [
+                  Text('Add Stock'),
+                  Icon(Icons.add_box_outlined)
+                ],
+              ),
               onTap: () {
                 // Implement the logic for adding stock
                 Navigator.pop(context);
