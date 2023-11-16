@@ -5,6 +5,8 @@ import 'package:billing_app/Pages/salesPage.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
+import '../colors.dart';
+import '../sizes.dart';
 import 'itemsPage.dart';
 
 class HomePage extends StatefulWidget {
@@ -68,32 +70,87 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Gunasewana Mills'),
+        title: Center(
+          child: Text('Gunasewana Mills',style:
+          TextStyle(fontWeight: FontWeight.bold, color: AppColor.darkGreen),
+          ),
+        ),
+
+        actions: [
+          Container(
+            margin: EdgeInsets.symmetric(horizontal: 10),
+            width: 40,
+            height: 40,
+            decoration: BoxDecoration(
+              color: Colors.white,
+              border: Border.all(color: AppColor.lightGreen), // Set border color
+              borderRadius: BorderRadius.circular(10), // Set border radius
+            ),
+            // child: Image.asset(
+            //   'images/omaLogoT.png', // Replace with your image path
+            //   fit: BoxFit.cover, // Adjust the fit as needed
+            // ),
+          )
+        ],
       ),
       drawer: Drawer(
         child: ListView(
           children: <Widget>[
-            ListTile(
-              leading: Icon(Icons.insert_chart_outlined_rounded,),
-              title: Text('Sales'),
-              onTap: () {
-                Navigator.pop(context);
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => SalesPage()),
-                );
-              },
+            Container(
+              height: 80,
+              child: DrawerHeader(
+                child: Center(
+                  child: Container(
+                    child: Text('Options',style: TextStyle(fontSize: 20,color: AppColor.darkGreen),),
+                  ),
+                ),
+              ),
             ),
-            ListTile(
-              leading: Icon(Icons.business_center_outlined),
-              title: Text('Items'),
-              onTap: () {
-                Navigator.pop(context);
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => ItemsPage()),
-                );
-              },
+            Container(
+              margin: EdgeInsets.symmetric(
+                  vertical: 5,
+                  horizontal: 15.0), // Add margin for the border
+              decoration: BoxDecoration(
+                color: Colors.white,
+                border: Border.all(color: AppColor.lightGreen), // Set border color
+                borderRadius:
+                BorderRadius.circular(15), // Set border radius
+              ),
+              child: ListTile(
+                leading: Icon(
+                  Icons.insert_chart_outlined_rounded,
+                ),
+                title: Text('Sales'),
+                onTap: () {
+                  Navigator.pop(context);
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => SalesPage()),
+                  );
+                },
+              ),
+            ),
+            Container(
+              margin: EdgeInsets.symmetric(
+                  vertical: 5,
+                  horizontal: 15.0), // Add margin for the border
+              decoration: BoxDecoration(
+                color: Colors.white,
+                border: Border.all(color: AppColor.lightGreen), // Set border color
+                borderRadius:
+                BorderRadius.circular(15), // Set border radius
+              ),
+              child: ListTile(
+                leading: Icon(Icons.business_center_outlined),
+                title: Text('Items'),
+                onTap: () {
+                  Navigator.pop(context);
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => ItemsPage()),
+                  );
+                },
+              ),
             ),
           ],
         ),
@@ -113,31 +170,40 @@ class _HomePageState extends State<HomePage> {
             child: ListView.builder(
               itemCount: items.length,
               itemBuilder: (context, index) {
-                return ItemTile(
-                  item: items[index],
-                  onQuantityChanged: (int value) {
-                    setState(() {
-                      items[index].quantity = value;
-                      if (items[index].isSelected) {
-                        items[index].total = value * items[index].price;
-                      }
-                    });
-                  },
-                  onSelectedChanged: (bool value) {
-                    setState(() {
-                      items[index].isSelected = value;
-                      if (value) {
-                        items[index].total =
-                            items[index].quantity * items[index].price;
-                      } else {
-                        items[index].total = 0;
-                      }
-                    });
-                  },
+                return Column(
+                  children: [
+                    ItemTile(
+                      item: items[index],
+                      onQuantityChanged: (int value) {
+                        setState(() {
+                          items[index].quantity = value;
+                          if (items[index].isSelected) {
+                            items[index].total = value * items[index].price;
+                          }
+                        });
+                      },
+                      onSelectedChanged: (bool value) {
+                        setState(() {
+                          items[index].isSelected = value;
+                          if (value) {
+                            items[index].total =
+                                items[index].quantity * items[index].price;
+                          } else {
+                            items[index].total = 0;
+                          }
+                        });
+                      },
+                    ),
+                    Divider(color: AppColor.lightGreen,)
+                  ],
                 );
               },
             ),
           ),
+    Container(
+    width: getPageWidth(context),
+    height: 70,
+    color: Colors.white,)
         ],
       ),
       floatingActionButton: ElevatedButton(
@@ -165,7 +231,23 @@ class _HomePageState extends State<HomePage> {
             ),
           );
         },
-        child: Text('Print'),
+        style: ButtonStyle(
+          backgroundColor: MaterialStateProperty.all<Color>(AppColor.darkGreen),
+          shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+            RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(25.0),
+              side: BorderSide(color: AppColor.appWhite),
+            ),
+          ),
+        ),
+        child: Container(
+            width: 60, // set your desired width
+            height: 50, // set your desired height
+            child: Icon(
+              Icons.print_outlined,
+              color: Colors.white,
+              size: 30,
+            )),
       ),
     );
   }
@@ -207,15 +289,15 @@ class _ItemTileState extends State<ItemTile> {
   }
 
   Color getItemTileColor() {
-    return selected ? Colors.blueGrey.shade200 : Colors.white;
+    return selected ? AppColor.appWhite : Colors.white;
   }
 
   Color getBorderColor() {
-    return selected ? Colors.blue : Colors.grey; // Change border color as needed
+    return selected ? Colors.white : Colors.white; // Change border color as needed
   }
 
   double getBorderRadius() {
-    return selected ? 8.0 : 0.0; // Change border radius as needed
+    return selected ? 8.0 : 8.0; // Change border radius as needed
   }
 
   @override
@@ -266,7 +348,7 @@ class _ItemTileState extends State<ItemTile> {
                   }
                 },
               ),
-              Text(quantity.toString()),
+              Text(quantity.toString(),style: TextStyle(fontSize: 16),),
               IconButton(
                 icon: Icon(Icons.add),
                 onPressed: () {

@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:billing_app/colors.dart';
 import 'package:flutter/material.dart';
 import 'dart:async';
 
@@ -350,7 +351,7 @@ class _PrinterPageState extends State<PrinterPage> {
                   ),
                 ],
               ),
-              Divider(),
+              Divider(color: AppColor.lightGreen,),
               StreamBuilder<List<BluetoothDevice>>(
                 stream: bluetoothPrint.scanResults,
                 initialData: [],
@@ -370,7 +371,7 @@ class _PrinterPageState extends State<PrinterPage> {
                   )).toList(),
                 ),
               ),
-              Divider(),
+              Divider(color: AppColor.lightGreen,),
               Container(
                 padding: EdgeInsets.fromLTRB(20, 5, 20, 10),
                 child: Column(
@@ -406,7 +407,7 @@ class _PrinterPageState extends State<PrinterPage> {
                         ),
                       ],
                     ),
-                    Divider(),
+                    Divider(color: AppColor.lightGreen,),
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: <Widget>[
@@ -436,7 +437,7 @@ class _PrinterPageState extends State<PrinterPage> {
                         // Add other receipt details here.
                       ],
                     ),
-                    Divider(),
+                    Divider(color: AppColor.lightGreen,),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [
@@ -564,7 +565,8 @@ class _PrinterPageState extends State<PrinterPage> {
             );
           } else {
             return FloatingActionButton(
-                child: Icon(Icons.search),
+              backgroundColor: AppColor.darkGreen,
+                child: Icon(Icons.search,color: Colors.white,),
                 onPressed: () => bluetoothPrint.startScan(timeout: Duration(seconds: 4)));
           }
         },
