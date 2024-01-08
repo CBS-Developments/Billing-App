@@ -16,6 +16,8 @@ class _SalesPageState extends State<SalesPage> {
   DateTime selectedDate = DateTime.now(); // Initialize with the current date
   String filterType = "All"; // Default filter type
 
+
+
   Future<List<Bill>> getSalesList(String filterType, DateTime? selectedDate) async {
     salesData.clear();
 
